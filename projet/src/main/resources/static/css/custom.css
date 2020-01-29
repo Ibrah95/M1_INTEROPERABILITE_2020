@@ -50,3 +50,31 @@ th {
 #ui{
     text-align: center;
 }
+
+footer {
+    position: absolute;
+    bottom: 0;
+    color: white;
+    background-color: #1e282d;
+    height:150px;
+    width: 100%;
+    padding: 20px;
+    text-align: center;
+}
+
+footer h3 {
+    width: 20%;
+    margin-left: 40%;
+    border-bottom: solid white 1px;
+    margin-bottom: 20px;
+}
+
+footer a {
+    color: white;
+    font-size: .8em;
+}
+
+footer a:hover {
+    color: #eeaf5a;
+    font-size: 1em;
+}
