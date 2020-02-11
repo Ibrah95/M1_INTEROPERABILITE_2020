@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,26 +11,192 @@
     <link rel="stylesheet" type="text/css" href="css/custom.css" />
     <title>Projet Interopérabilité</title>
 </head>
+
 <body>
-    
-    <div class="center">
-        <img class=".responsive-img " src="img/logo.png" alt="logo application" width="230" />
-    </div>
-    <section class="w-container">
-        <h1> Page de recherche <i class="fas fa-search"></i></h1>
-        <div >
-            Entrez une phrase ou un mot clé que vous voulez rechercher !
+
+    <main id="main">
+        <div class="center">
+            <img class=".responsive-img " src="img/logo.png" alt="logo application" width="230" />
         </div>
-        <form method="POST"  class="search-bar search-bar i" th:action="@{/}" th:object=${demande}>
-                <input type="text" name="search" placeholder="Entrer une phrase ou un mot clé !" th:field="*{question}">
-                <input type="submit" value="search"/>
-        </form>
-    </section>
+        <section class="w-container">
+            <h1> Rechercher une information sur la <strong>métropole de Saint-Etienne :</strong> </h1>
+            <form class="search-bar search-bar i" v-on:submit.prevent="search()">
+                <input v-on:input="reinitSearch()" style="width: 70%; height: 50px;" type="text" name="search"
+                    placeholder="Entrer une phrase ou un mot clé que vous voulez rechercher !" v-model="phrase">
+                <button style="height: 50px; position:relative; top: 3px;"><i class="fas fa-search"></i></button>
+            </form>
+        </section>
+        <section class="w-container" v-if="notFound && !isSearching">
+            <h1> Oups ! nous n'avons trouvé aucun resultat pour la recherche : </h1><em> "{{ phrase }}" </em>
+        </section>
+        <section class="w-container" v-if="data.containsInformation() && !isSearching">
+            <article v-for="info in data.infos">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h2>{{ info.label }}</h2>
+                        <p>{{ info.description }}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <p v-for="img in info.images"><img v-bind:src="img" alt="image" height="150" width="150" /></p>
+                    </div>
+                </div>
+            </article>
+        </section>
+        <section class="w-container" v-if="isSearching">
+            <div style="text-align: center;"><i class="fas fa-spinner fa-pulse" style="font-size: 50px;"></i> Recherche
+                en cours...</div>
+        </section>
+    </main>
 
     <footer>
         <h3>API</h3>
         <a href="/api/extraction/html" class="btn btn-info">extraire les sources HTML manuellement [cliquez ici]</a>
     </footer>
 
+    <!-- INCLUDE VUE JS -->
+    <script src="lib/vue.js"></script>
+
+    <script>
+
+        // class that contains data from qAnswer
+        class Info {
+            label = "";
+            images = [];
+            description = "";
+            links = [];
+            uri = "";
+            videos = [];
+
+            containsInformation() {
+                return ((this.label && this.label.length > 0) ||
+                    (this.images && this.images.length > 0) ||
+                    (this.description && this.description.length > 0) ||
+                    (this.links && this.links.length > 0) ||
+                    (this.uri && this.uri.length > 0) ||
+                    (this.videos && this.videos.length > 0));
+            }
+        }
+        class Data {
+
+            infos = [];
+
+            filterQaContexts(qaContexts) {
+                qaContexts.forEach((qaContext) => {
+                    const newInfo = new Info();
+                    newInfo.label = qaContext.label;
+                    newInfo.images = qaContext.images;
+                    newInfo.description = qaContext.label;
+                    newInfo.links = Array.from(qaContext.links);
+                    newInfo.uri = qaContext.uri;
+                    newInfo.videos = qaContext.video;
+                    this.infos.push(newInfo);
+                });
+
+            }
+
+            containsInformation() {
+                let containsInfo = false;
+                this.infos.forEach((info) => {
+                    containsInfo |= info.containsInformation();
+                });
+                return containsInfo;
+            }
+
+
+        }
+        /**
+        * @author Solofo R.
+        */
+
+        vm = new Vue({
+            el: '#main',
+
+            data: () => ({
+                errors: [],
+                phrase: "",
+                notFound: false,
+                authorization: "",
+                data: new Data(),
+                isSearching: false,
+            }),
+
+            created: function () {
+                this.signup();
+            },
+
+            methods: {
+                reinitSearch: function () {
+                    this.notFound = false;
+                },
+                search: async function () {
+                    if (this.isSearching) { return } // reject any other search while searching
+                    this.data = new Data();
+                    const url = "http://qanswer-core1.univ-st-etienne.fr/api/qa/full?question=" + this.phrase;
+                    this.isSearching = true;
+                    console.log(this.isSearching)
+                    try {
+                        const response = await fetch(url, {
+                            method: "GET",
+                            async: true,
+                            crossDomain: true,
+                            headers: {
+                                "Authorization": this.authorization,
+                            }
+                        });
+                        response.json().then(data => {
+                        // get data from qAnswer
+                        this.data.filterQaContexts(data.qaContexts);
+                        this.notFound = !this.data.containsInformation();
+                        this.isSearching = false;
+                        console.log(this.isSearching)
+                    });
+                    } catch(e) {
+                        this.isSearching = false;
+                        this.notFound = true;
+                    }
+                    
+                },
+                signup: function () {
+                    // check if already authentificated 
+                    if (sessionStorage.getItem("auth_token")) {
+                        // get the token access from session storage
+                        const data = sessionStorage.getItem("auth_token");
+                        this.authorization = `${data.tokenType} ${data.accessToken}`;
+                        console.log("déjà connecté");
+                    } else {
+                        const url = "http://qanswer-core1.univ-st-etienne.fr/api/user/signin";
+                        const data = {
+                            usernameOrEmail: "Enjana",
+                            password: "code4EVER#",
+                        }
+                        fetch(url, {
+                            method: "POST",
+                            body: JSON.stringify(data),
+                            async: true,
+                            crossDomain: true,
+                            processData: false,
+                            headers: {
+                                "Content-Type": "application/json"
+                            }
+                        }).then(function (response) {
+                            return response.json();
+                        }, function (error) {
+                            // notify error
+                            this.errors.push(error.message);
+                        }).then(data => {
+                            // save authentification token 
+                            this.authorization = `${data.tokenType} ${data.accessToken}`;
+                            sessionStorage.setItem("auth_token", JSON.stringify(data));
+                            console.log("se connecte");
+                        });
+
+                    }
+
+                },
+            }
+        })
+    </script>
+
 </body>
+
 </html>

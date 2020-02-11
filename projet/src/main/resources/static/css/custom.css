@@ -23,6 +23,7 @@ li {
 section {
     background: #eee;
     padding: 20px;
+    margin-bottom: 50px;
 }
 
 #message {
@@ -52,8 +53,7 @@ th {
 }
 
 footer {
-    position: absolute;
-    bottom: 0;
+    margin-top: 170px;
     color: white;
     background-color: #1e282d;
     height:150px;
