@@ -50,7 +50,9 @@
 
     <footer>
         <h3>API</h3>
-        <a href="/api/extraction/html" class="btn btn-info">extraire les sources HTML manuellement [cliquez ici]</a>
+        <a href="/api/extraction/html" class="btn btn-info">extraire les sources HTML manuellement [cliquez ici]</a><br/>
+        
+        <a href="/api/extraction/csv" class="btn btn-info">extraire les informations du CSV manuellement [cliquez ici]</a>
     </footer>
 
     <!-- INCLUDE VUE JS -->
@@ -133,7 +135,6 @@
                     this.data = new Data();
                     const url = "http://qanswer-core1.univ-st-etienne.fr/api/qa/full?question=" + this.phrase;
                     this.isSearching = true;
-                    console.log(this.isSearching)
                     try {
                         const response = await fetch(url, {
                             method: "GET",
@@ -148,7 +149,6 @@
                         this.data.filterQaContexts(data.qaContexts);
                         this.notFound = !this.data.containsInformation();
                         this.isSearching = false;
-                        console.log(this.isSearching)
                     });
                     } catch(e) {
                         this.isSearching = false;

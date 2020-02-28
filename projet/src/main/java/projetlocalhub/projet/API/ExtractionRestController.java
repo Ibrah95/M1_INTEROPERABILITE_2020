@@ -12,6 +12,8 @@ public class ExtractionRestController {
 
         @Inject
         HTMLExtracteur htmlExtracteurService;
+        @Inject
+        CSVExtracteur csvExtracteurService;
 
         final String[][] HTML_SOURCES = {
                         { "https://scd.univ-st-etienne.fr/fr/tout-savoir-sur-mes-bu/organisation-des-bu.html",
@@ -31,6 +33,11 @@ public class ExtractionRestController {
                         { "https://scd.univ-st-etienne.fr/fr/tout-savoir-sur-mes-bu/bibliotheques-associees/centre-de-documentation-recherche-en-all-shs.html",
                                         "INFOS-ALL-SHS.html" } };
 
+        final String[][] CSV_SOURCES = {
+                {"les-1000-titres-les-plus-reserves-dans-les-bibliotheques-de-pret.csv", ";"},
+                {"les-titres-les-plus-pretes.csv", ","},
+        };
+
         @GetMapping("/api/extraction/html")
         public ResponseEntity<String> extractHTML() {
                 System.out.println("extrait les ressources html");
@@ -38,5 +45,14 @@ public class ExtractionRestController {
                         this.htmlExtracteurService.extract(HTML_SOURCES[i][0], HTML_SOURCES[i][1]);
                 }
                 return new ResponseEntity<String>(HttpStatus.OK);
+        }
+
+        @GetMapping("/api/extraction/csv")
+        public ResponseEntity<String> extractCSV() {
+                System.out.println("extrait les informations des csv");
+                for (String[] csv : CSV_SOURCES) {
+                        this.csvExtracteurService.extract(csv[0], csv[1].charAt(0));
+                }
+                return new ResponseEntity<String> (HttpStatus.OK);
         }
 }

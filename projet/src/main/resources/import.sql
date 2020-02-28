@@ -6,4 +6,4 @@ INSERT INTO ouverture_bu (bibliotheque, ouverture) VALUES ('BU Sante', 'Lundi au
 
 INSERT INTO ouverture_bu (bibliotheque, ouverture) VALUES ('BU Roanne', ' Lundi 8h45-18h / Mardi au vendredi 8h45-18h30');
 
-INSERT INTO ouverture_bu (bibliotheque, ouverture) VALUES ('BU Manufacture', 'Jeudi 9h-15h30 en presence d’une bibliothecaire. Acces badge pendant les heures d’ouverture de l’Eco');
+INSERT INTO ouverture_bu (bibliotheque, ouverture) VALUES ('BU Manufacture', 'Jeudi 9h-15h30 en presence d’une bibliothecaire. Acces badge pendant les heures d’ouverture de l’Eco'); 
