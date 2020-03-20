@@ -24,14 +24,7 @@ public class MainController {
     }
 
 
-    @PostMapping("/")
-    public String postaccueuil(Model model, @ModelAttribute("demande") Demande d){
-        System.out.println(d.getQuestion());
-        String [] motCles = d.getQuestion().split(" ");
-        model.addAttribute("phrase", d.getQuestion());
-        model.addAttribute("motCles", motCles);
-        return "resultat";
-    }
+    
 
 
 
