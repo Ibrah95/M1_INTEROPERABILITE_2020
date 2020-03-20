@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class HTMLExtracteur {
 
-	final String FOLDER_PATH = "DATA/HTML/";
+	final static String FOLDER_PATH = "DATA/HTML/";
 	URL url;
 
 	public void extract(String url, String fileName) {

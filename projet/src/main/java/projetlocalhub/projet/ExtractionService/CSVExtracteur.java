@@ -16,6 +16,9 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 
 import org.springframework.stereotype.Service;
+import javax.inject.Inject;
+
+import projetlocalhub.projet.modele.*;
 
 /**
  * @author S.RABONARIJAONA
@@ -29,9 +32,16 @@ public class CSVExtracteur {
     final String FOLDER_PATH = "DATA/CSV/";
     URL url;
 
+    @Inject
+    TitresPlusReservesRepository titresPlusReservesRep;
+
+
+
     public List<List<String>> extract(String filename, char separator) {
         List<List<String>> records = new ArrayList<List<String>>();
         String filePath = FOLDER_PATH + filename;
+        int ligne = 1;
+        int colonne = 0;
         try {
             Reader reader = Files.newBufferedReader(Paths.get(filePath));
             CSVParser parser = new CSVParserBuilder()
@@ -42,18 +52,31 @@ public class CSVExtracteur {
             String[] values = null;
             while ((values = csvReader.readNext()) != null) {
                 records.add(Arrays.asList(values));
+                colonne = 0;
+                String [] data = new String[6];
                 for (String value : values) {
-                    System.out.print(value + " || ");
+                    // System.out.print(value + " || ");
+                    if (colonne < 6 && ligne > 1) {
+                        data[colonne] = value;
+                        colonne++;
+                    } else {
+                        break;
+                    }
                 }
-                System.out.println("");
+                if (ligne > 1) {
+                    // creer l'objet TitresPlusReserves
+                    TitresPlusReserves titre = new TitresPlusReserves(data);
+                    // enregistrer dans la DB
+                    titresPlusReservesRep.save(titre);
+                }
+                // System.out.println("");
+                ligne++;
             }
         } catch (FileNotFoundException e1) {
             e1.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
         return records;
     }
 }

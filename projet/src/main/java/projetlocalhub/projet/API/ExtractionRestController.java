@@ -13,6 +13,8 @@ public class ExtractionRestController {
         @Inject
         HTMLExtracteur htmlExtracteurService;
         @Inject
+        HTMLParser htmlParserService;
+        @Inject
         CSVExtracteur csvExtracteurService;
 
         final String[][] HTML_SOURCES = {
@@ -44,6 +46,21 @@ public class ExtractionRestController {
                 for (int i = 0; i < HTML_SOURCES.length; i++) {
                         this.htmlExtracteurService.extract(HTML_SOURCES[i][0], HTML_SOURCES[i][1]);
                 }
+                return new ResponseEntity<String>(HttpStatus.OK);
+        }
+
+        @GetMapping("/api/parse/html")
+        public ResponseEntity<String> parseHTML() {
+                System.out.println("parse les informations dans les ressources html");
+                // parse l'organisation
+                htmlParserService.parseOrganisation(HTML_SOURCES[0][1]);
+                // parse l'info sur ROANNE
+                htmlParserService.deleteAllLibraryInfos();
+                htmlParserService.parseRoane(HTML_SOURCES[1][1]);
+                htmlParserService.parseSante(HTML_SOURCES[2][1]);
+                htmlParserService.parseScience(HTML_SOURCES[3][1]);
+                htmlParserService.parseIUT(HTML_SOURCES[4][1]);
+                htmlParserService.parseCERCRID(HTML_SOURCES[5][1]);
                 return new ResponseEntity<String>(HttpStatus.OK);
         }
 
